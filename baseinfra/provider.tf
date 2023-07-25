@@ -13,6 +13,13 @@ terraform {
 
 provider "aws" {
     region = var.aws_region
-    # access_key = var.aws_access_key
-    # secret_key = var.aws_secret_key
+}
+
+data "terraform_remote_state" "baseinfra" {
+    backend = "s3"
+    config = {
+        bucket      = "${var.remote_state_bucket}"
+        key         = "${var.remote_state_key}"
+        region      = "${var.aws_region}"
+    }
 }
