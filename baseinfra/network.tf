@@ -1,26 +1,112 @@
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0.0"
+# VPC Creation
+resource "aws_vpc" "main" {
+    cidr_block              = "${var.vpc_cidr_block}"
+    enable_dns_hostnames    = true
+    tags = {
+        Name                = "${var.environment}-vpc"
+    }
+}
 
-  name = "education-vpc"
+# Public Subnet Creation
+resource "aws_subnet" "public-subnet-1a" {
+    vpc_id              = aws_vpc.main.id
+    cidr_block          = var.public_subnet_1a_cidr_block
+    availability_zone   = "us-east-1a"
+    
 
-  cidr = "10.0.0.0/16"
-  azs  = slice(data.aws_availability_zones.available.names, 0, 3)
+    tags = {
+        Name            = "${var.environment}-public-subnet-1a"
+    }
+}
 
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+resource "aws_subnet" "public-subnet-1b" {
+    vpc_id              = aws_vpc.main.id
+    cidr_block          = var.public_subnet_1b_cidr_block
+    availability_zone   = "us-east-1b"
+    tags = {
+        Name            = "${var.environment}-public-subnet-1b"
+    }
+}
 
-  enable_nat_gateway   = true
-  single_nat_gateway   = true
-  enable_dns_hostnames = true
+# Private Subnet Creation
+resource "aws_subnet" "private-subnet-1a" {
+    vpc_id              = aws_vpc.main.id
+    cidr_block          = var.private_subnet_1a_cidr_block
+    availability_zone   = "us-east-1a"
+    tags = {
+        Name            = "${var.environment}-private-subnet-1a"
+    }
+}
 
-  public_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                      = 1
-  }
+resource "aws_subnet" "private-subnet-1b" {
+    vpc_id              = aws_vpc.main.id
+    cidr_block          = var.private_subnet_1b_cidr_block
+    availability_zone   = "us-east-1b"
 
-  private_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"             = 1
-  }
+    tags = {
+        Name            = "${var.environment}-private-subnet-1b"
+    }
+  
+}
+
+# Route Table Creation - Public 
+resource "aws_route_table" "public-route-table" {
+    vpc_id = aws_vpc.main.id
+
+    tags = {
+      Name = "${var.environment}-public-route-table"
+    }
+}
+
+# Route Table Creation - Private
+resource "aws_route_table" "private-route-table" {
+    vpc_id = aws_vpc.main.id
+
+    tags = {
+      Name = "${var.environment}-private-route-table"
+    }
+}
+
+# Route Table Association - Public
+
+resource "aws_route_table_association" "public-subnet-1a" {
+    subnet_id       = aws_subnet.public-subnet-1a.id
+    route_table_id  = aws_route_table.public-route-table.id
+}
+
+resource "aws_route_table_association" "public-subnet-1b" {
+    subnet_id       = aws_subnet.public-subnet-1b.id
+    route_table_id  = aws_route_table.public-route-table.id
+}
+
+# Route Table Association - Private
+
+resource "aws_route_table_association" "private-subnet-1a" {
+    subnet_id       = aws_subnet.private-subnet-1a.id
+    route_table_id  = aws_route_table.private-route-table.id
+}
+
+resource "aws_route_table_association" "private-subnet-1b" {
+    subnet_id       = aws_subnet.private-subnet-1b.id
+    route_table_id  = aws_route_table.private-route-table.id
+}
+
+
+# Internet Gateway Creation
+
+resource "aws_internet_gateway" "main-igw" {
+    vpc_id = aws_vpc.main.id
+
+    tags = {
+      Name = "${var.environment}-IGW"
+    }
+}
+
+
+# Public IGW & route table association [ public route]
+
+resource "aws_route" "igw-route" {
+    route_table_id          = aws_route_table.public-route-table.id
+    gateway_id              = aws_internet_gateway.main-igw.id
+    destination_cidr_block  = "0.0.0.0/0"
 }
