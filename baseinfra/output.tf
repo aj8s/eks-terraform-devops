@@ -29,3 +29,14 @@ output "private_subnets" {
 output "public_subnets" {
   value = tolist([aws_subnet.public-subnet-1a.id, aws_subnet.public-subnet-1b.id])
 }
+
+output "aws_iam_role_demo" {
+  value = aws_iam_role.demo.arn
+
+}
+output "aws_iam_role_node" {
+  value = aws_iam_role.nodes
+}
+output "policy_attachment_demo_AmazonEKSClusterPolicy" {
+  value = aws_iam_role_policy_attachment.demo-AmazonEKSClusterPolicy
+}
