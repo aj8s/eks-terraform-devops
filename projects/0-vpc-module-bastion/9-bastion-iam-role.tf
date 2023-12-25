@@ -1,10 +1,10 @@
-resource "aws_iam_instance_profile" "ssm-iam-profile" {
+resource "aws_iam_instance_profile" "ssm_iam_profile" {
   name = "ec2_profile"
-  role = aws_iam_role.ssm-iam-role.name
+  role = aws_iam_role.ssm_iam_role.name
 }
 
-resource "aws_iam_role" "ssm-iam-role" {
-  name               = "ssm-iam-role"
+resource "aws_iam_role" "ssm_iam_role" {
+  name               = "ssm_iam_role"
   description        = "The role for the developer resources EC2"
   assume_role_policy = <<EOF
 {
@@ -19,7 +19,7 @@ EOF
   tags               = local.common_tags
 }
 
-resource "aws_iam_role_policy_attachment" "ssm-policy" {
-  role       = aws_iam_role.ssm-iam-role.name
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  role       = aws_iam_role.ssm_iam_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }

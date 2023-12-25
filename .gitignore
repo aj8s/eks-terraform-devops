@@ -34,3 +34,4 @@ override.tf.json
 terraform.rc
 projects/ec2-ssm/.terraform.lock.hcl
 projects/terraform-aws-eks/.terraform.lock.hcl
+projects/0-vpc-module-bastion/.terraform.lock.hcl

@@ -1,4 +1,4 @@
-resource "aws_security_group" "bastion-sg" {
+resource "aws_security_group" "bastion_sg" {
   name        = "bastion-sg"
   vpc_id      = module.vpc.vpc_id
   description = "Allows access to Web Port"

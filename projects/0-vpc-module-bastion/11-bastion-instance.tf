@@ -2,8 +2,8 @@ resource "aws_instance" "bastion" {
   ami                  = data.aws_ami.amzlinux2.id
   instance_type        = var.instance_type
   subnet_id            = module.vpc.public_subnets[0]
-  security_groups      = [aws_security_group.bastion-sg.id]
-  iam_instance_profile = aws_iam_instance_profile.ssm-iam-profile.name
+  security_groups      = [aws_security_group.bastion_sg.id]
+  iam_instance_profile = aws_iam_instance_profile.ssm_iam_profile.name
   tags                 = local.common_tags
 }
 
